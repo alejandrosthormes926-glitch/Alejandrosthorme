@@ -1,44 +1,232 @@
-local p=game.Players.LocalPlayer
-local gui=p:WaitForChild("PlayerGui")
-if gui:FindFirstChild("A") then gui.A:Destroy() end
-local sg=Instance.new("ScreenGui",gui)
-sg.Name="A"
-sg.ResetOnSpawn=false
-local b=Instance.new("TextButton",sg)
-b.Size=UDim2.new(0,60,0,60)
-b.Position=UDim2.new(0.05,0,0.5,0)
-b.Text="A"
-b.BackgroundColor3=Color3.fromRGB(255,0,0)
-b.TextScaled=true
-b.Active=true
-b.Draggable=true
-Instance.new("UICorner",b)
-local m=Instance.new("Frame",sg)
-m.Size=UDim2.new(0,200,0,320)
-m.Position=UDim2.new(0.5,-100,0.5,-160)
-m.BackgroundColor3=Color3.fromRGB(18,18,18)
-m.Visible=true
-Instance.new("UICorner",m)
-b.MouseButton1Click:Connect(function() m.Visible=not m.Visible end)
-local y=5
-local function mk(t,f)
-local btn=Instance.new("TextButton",m)
-btn.Size=UDim2.new(0.9,0,0,28)
-btn.Position=UDim2.new(0.05,0,0,y)
-btn.Text=t
-btn.BackgroundColor3=Color3.fromRGB(50,50,50)
-btn.TextColor3=Color3.new(1,1,1)
-btn.TextSize=11
-btn.Font=Enum.Font.GothamBold
-Instance.new("UICorner",btn)
-y=y+32
-btn.MouseButton1Click:Connect(function() f(btn) end)
+
+```lua
+--// Alejandro Luag Script
+--// Contraseña: ale.123
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local VirtualUser = game:GetService("VirtualUser")
+
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+
+--// Variables del Script
+local ScriptName = "Alejandro Luag"
+local Password = "ale.123"
+local MenuAbierto = false
+
+--// Estados de las funciones
+local Estados = {
+    Velocidad = false,
+    AutoAgarre = false,
+    AntiAFK = false,
+    AntiLag = false,
+    AutoDinero = false
+}
+
+--// Crear GUI Principal
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = ScriptName
+ScreenGui.Parent = game.CoreGui
+
+--// Bolita Azul (Botón para abrir menú)
+local Bolita = Instance.new("TextButton")
+Bolita.Name = "BolitaAzul"
+Bolita.Size = UDim2.new(0, 50, 0, 50)
+Bolita.Position = UDim2.new(0, 20, 0.5, -25)
+Bolita.BackgroundColor3 = Color3.fromRGB(0, 100, 255)
+Bolita.Text = "🎮"
+Bolita.TextSize = 20
+Bolita.TextColor3 = Color3.new(1, 1, 1)
+Bolita.Font = Enum.Font.GothamBold
+Bolita.Parent = ScreenGui
+Bolita.ClipsDescendants = true
+Bolita.AutoButtonColor = true
+
+--// Esquina redondeada bolita
+local UICornerBolita = Instance.new("UICorner")
+UICornerBolita.CornerRadius = UDim.new(1, 0)
+UICornerBolita.Parent = Bolita
+
+--// Marco del Menú Principal
+local MenuFrame = Instance.new("Frame")
+MenuFrame.Name = "MenuPrincipal"
+MenuFrame.Size = UDim2.new(0, 300, 0, 400)
+MenuFrame.Position = UDim2.new(0, 80, 0.5, -200)
+MenuFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+MenuFrame.BorderSizePixel = 0
+MenuFrame.Visible = false
+MenuFrame.Parent = ScreenGui
+
+--// Esquinas redondeadas menú
+local UICornerMenu = Instance.new("UICorner")
+UICornerMenu.CornerRadius = UDim.new(0, 15)
+UICornerMenu.Parent = MenuFrame
+
+--// Título del menú
+local Titulo = Instance.new("TextLabel")
+Titulo.Name = "Titulo"
+Titulo.Size = UDim2.new(1, 0, 0, 50)
+Titulo.Position = UDim2.new(0, 0, 0, 0)
+Titulo.BackgroundColor3 = Color3.fromRGB(0, 80, 200)
+Titulo.Text = "🔷 " .. ScriptName .. " 🔷"
+Titulo.TextColor3 = Color3.new(1, 1, 1)
+Titulo.TextSize = 22
+Titulo.Font = Enum.Font.GothamBold
+Titulo.Parent = MenuFrame
+
+local UICornerTitulo = Instance.new("UICorner")
+UICornerTitulo.CornerRadius = UDim.new(0, 15)
+UICornerTitulo.Parent = Titulo
+
+--// Botón cerrar
+local BotonCerrar = Instance.new("TextButton")
+BotonCerrar.Name = "Cerrar"
+BotonCerrar.Size = UDim2.new(0, 35, 0, 35)
+BotonCerrar.Position = UDim2.new(1, -40, 0, 7)
+BotonCerrar.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+BotonCerrar.Text = "X"
+BotonCerrar.TextColor3 = Color3.new(1, 1, 1)
+BotonCerrar.TextSize = 18
+BotonCerrar.Font = Enum.Font.GothamBold
+BotonCerrar.Parent = Titulo
+
+local UICornerCerrar = Instance.new("UICorner")
+UICornerCerrar.CornerRadius = UDim.new(0, 8)
+UICornerCerrar.Parent = BotonCerrar
+
+--// Contenedor de botones
+local Contenedor = Instance.new("ScrollingFrame")
+Contenedor.Name = "Contenedor"
+Contenedor.Size = UDim2.new(1, -20, 1, -70)
+Contenedor.Position = UDim2.new(0, 10, 0, 60)
+Contenedor.BackgroundTransparency = 1
+Contenedor.ScrollBarThickness = 5
+Contenedor.Parent = MenuFrame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Padding = UDim.new(0, 10)
+UIListLayout.Parent = Contenedor
+
+--// Función para crear botones toggle
+local function CrearBoton(nombre, descripcion)
+    local Boton = Instance.new("TextButton")
+    Boton.Name = nombre
+    Boton.Size = UDim2.new(1, 0, 0, 60)
+    Boton.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
+    Boton.Text = nombre .. "\n" .. descripcion
+    Boton.TextColor3 = Color3.new(1, 1, 1)
+    Boton.TextSize = 14
+    Boton.Font = Enum.Font.Gotham
+    Boton.TextWrapped = true
+    Boton.Parent = Contenedor
+    
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 10)
+    UICorner.Parent = Boton
+    
+    local EstadoLabel = Instance.new("TextLabel")
+    EstadoLabel.Name = "Estado"
+    EstadoLabel.Size = UDim2.new(0, 15, 0, 15)
+    EstadoLabel.Position = UDim2.new(1, -25, 0, 10)
+    EstadoLabel.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+    EstadoLabel.Text = ""
+    EstadoLabel.Parent = Boton
+    
+    local UICornerEstado = Instance.new("UICorner")
+    UICornerEstado.CornerRadius = UDim.new(1, 0)
+    UICornerEstado.Parent = EstadoLabel
+    
+    return Boton, EstadoLabel
 end
-mk("SPEED 2000",function() p.Character.Humanoid.WalkSpeed=2000 p.Character.Humanoid.JumpPower=150 end)
-mk("ANTI JEFE",function(btn) _G.aj=not _G.aj btn.BackgroundColor3=_G.aj and Color3.fromRGB(0,200,0) or Color3.fromRGB(50,50,50) task.spawn(function() while _G.aj do task.wait(0.2) if p.Character then for _,v in pairs(p.Character:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide=false end end end end end) end)
-mk("AUTO ROBAR",function(btn) _G.ar=not _G.ar btn.BackgroundColor3=_G.ar and Color3.fromRGB(0,200,0) or Color3.fromRGB(50,50,50) task.spawn(function() while _G.ar do task.wait(0.3) for _,v in pairs(workspace:GetDescendants()) do if v:IsA("ProximityPrompt") then pcall(function() fireproximityprompt(v) end) end end end end) end)
-mk("AUTO BATE",function(btn) _G.ab=not _G.ab btn.BackgroundColor3=_G.ab and Color3.fromRGB(0,200,0) or Color3.fromRGB(50,50,50) task.spawn(function() while _G.ab do task.wait(0.1) for _,pl in pairs(game.Players:GetPlayers()) do if pl~=p and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") and (p.Character.HumanoidRootPart.Position-pl.Character.HumanoidRootPart.Position).Magnitude<12 then for _,t in pairs(p.Character:GetChildren()) do if t:IsA("Tool") then t:Activate() end end end end end end) end)
-mk("FLY",function(btn) local hrp=p.Character.HumanoidRootPart if hrp:FindFirstChild("FLYV") then hrp.FLYV:Destroy() hrp.FLYG:Destroy() btn.BackgroundColor3=Color3.fromRGB(50,50,50) else local bv=Instance.new("BodyVelocity",hrp) bv.Name="FLYV" bv.Velocity=Vector3.new(0,0,0) bv.MaxForce=Vector3.new(9e9,9e9,9e9) local bg=Instance.new("BodyGyro",hrp) bg.Name="FLYG" bg.MaxTorque=Vector3.new(9e9,9e9,9e9) bg.P=9e4 btn.BackgroundColor3=Color3.fromRGB(0,200,0) end end)
-mk("ESP",function() for _,pl in pairs(game.Players:GetPlayers()) do if pl~=p and pl.Character and not pl.Character:FindFirstChild("ESP") then local hl=Instance.new("Highlight",pl.Character) hl.Name="ESP" hl.FillColor=Color3.fromRGB(255,0,0) end end end)
-mk("NOCLIP",function(btn) _G.nc=not _G.nc btn.BackgroundColor3=_G.nc and Color3.fromRGB(0,200,0) or Color3.fromRGB(50,50,50) task.spawn(function() while _G.nc do task.wait(0.2) if p.Character then for _,v in pairs(p.Character:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide=false end end end end end) end)
-mk("CERRAR",function() m.Visible=false end)
+
+--// Crear botones de funciones
+local BotonVelocidad, EstadoVelocidad = CrearBoton("⚡ Velocidad 2000", "Activa velocidad super rápida")
+local BotonAutoAgarre, EstadoAutoAgarre = CrearBoton("🖐️ Auto Agarre", "Agarra objetos automáticamente")
+local BotonAntiAFK, EstadoAntiAFK = CrearBoton("☕ Anti AFK", "Evita ser expulsado por inactividad")
+local BotonAntiLag, EstadoAntiLag = CrearBoton("🚀 Anti Lag", "Optimiza el rendimiento del juego")
+local BotonAutoDinero, EstadoAutoDinero = CrearBoton("💰 Auto Dinero", "Recolecta dinero automáticamente")
+
+--// Sistema de Contraseña
+local PantallaLogin = Instance.new("Frame")
+PantallaLogin.Name = "Login"
+PantallaLogin.Size = UDim2.new(0, 350, 0, 200)
+PantallaLogin.Position = UDim2.new(0.5, -175, 0.5, -100)
+PantallaLogin.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+PantallaLogin.BorderSizePixel = 0
+PantallaLogin.Parent = ScreenGui
+
+local UICornerLogin = Instance.new("UICorner")
+UICornerLogin.CornerRadius = UDim.new(0, 15)
+UICornerLogin.Parent = PantallaLogin
+
+local TituloLogin = Instance.new("TextLabel")
+TituloLogin.Size = UDim2.new(1, 0, 0, 50)
+TituloLogin.BackgroundColor3 = Color3.fromRGB(0, 80, 200)
+TituloLogin.Text = "🔐 " .. ScriptName
+TituloLogin.TextColor3 = Color3.new(1, 1, 1)
+TituloLogin.TextSize = 24
+TituloLogin.Font = Enum.Font.GothamBold
+TituloLogin.Parent = PantallaLogin
+
+local UICornerTituloLogin = Instance.new("UICorner")
+UICornerTituloLogin.CornerRadius = UDim.new(0, 15)
+UICornerTituloLogin.Parent = TituloLogin
+
+local TextoInstruccion = Instance.new("TextLabel")
+TextoInstruccion.Size = UDim2.new(1, -20, 0, 30)
+TextoInstruccion.Position = UDim2.new(0, 10, 0, 60)
+TextoInstruccion.BackgroundTransparency = 1
+TextoInstruccion.Text = "Ingresa la contraseña para continuar:"
+TextoInstruccion.TextColor3 = Color3.new(1, 1, 1)
+TextoInstruccion.TextSize = 16
+TextoInstruccion.Font = Enum.Font.Gotham
+TextoInstruccion.Parent = PantallaLogin
+
+local InputPassword = Instance.new("TextBox")
+InputPassword.Size = UDim2.new(1, -40, 0, 40)
+InputPassword.Position = UDim2.new(0, 20, 0, 95)
+InputPassword.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
+InputPassword.Text = ""
+InputPassword.PlaceholderText = "Contraseña..."
+InputPassword.TextColor3 = Color3.new(1, 1, 1)
+InputPassword.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+InputPassword.TextSize = 16
+InputPassword.Font = Enum.Font.Gotham
+InputPassword.ClearTextOnFocus = false
+InputPassword.Parent = PantallaLogin
+
+local UICornerInput = Instance.new("UICorner")
+UICornerInput.CornerRadius = UDim.new(0, 8)
+UICornerInput.Parent = InputPassword
+
+local BotonEntrar = Instance.new("TextButton")
+BotonEntrar.Size = UDim2.new(0, 120, 0, 40)
+BotonEntrar.Position = UDim2.new(0.5, -60, 0, 145)
+BotonEntrar.BackgroundColor3 = Color3.fromRGB(0, 150, 50)
+BotonEntrar.Text = "ENTRAR"
+BotonEntrar.TextColor3 = Color3.new(1, 1, 1)
+BotonEntrar.TextSize = 18
+BotonEntrar.Font = Enum.Font.GothamBold
+BotonEntrar.Parent = PantallaLogin
+
+local UICornerEntrar = Instance.new("UICorner")
+UICornerEntrar.CornerRadius = UDim.new(0, 8)
+UICornerEntrar.Parent = BotonEntrar
+
+local MensajeError = Instance.new("TextLabel")
+MensajeError.Size = UDim2.new(1, 0, 0, 20)
+MensajeError.Position = UDim2.new(0, 0, 1, -25)
+MensajeError.BackgroundTransparency = 1
+MensajeError.Text = ""
+MensajeError.TextColor3 = Color3.fromRGB(255, 50, 50)
+MensajeError.TextSize = 14
+MensajeError.Font = Enum.Font.Gotham
+MensajeError.Parent = PantallaLogin
+
+--// Funciones del Script
+
+-- Velocidad 2000
+local function
