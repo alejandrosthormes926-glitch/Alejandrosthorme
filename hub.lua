@@ -1,15 +1,17 @@
-awnlocal p=game.Players.LocalPlayer local g=p:FindFirstChild("PlayerGui")or game.CoreGui if gethui then pcall(function() g=gethui()end)end for _,v in pairs(g:GetChildren())do if v.Name=="A"then v:Destroy()end end
+local p=game.Players.LocalPlayer
+local g=gethui and gethui() or p.PlayerGui
+for _,v in pairs(g:GetChildren())do if v.Name=="A"then v:Destroy()end end
 local sg=Instance.new("ScreenGui",g)sg.Name="A"sg.ResetOnSpawn=false
-local bola=Instance.new("TextButton",sg)bola.Size=UDim2.new(0,60,0,60)bola.Position=UDim2.new(0.05,0,0.5,0)bola.Text="A"bola.BackgroundColor3=Color3.fromRGB(255,0,0)bola.TextColor3=Color3.new(1,1,1)bola.Font=Enum.Font.GothamBlack bola.TextSize=28 Instance.new("UICorner",bola).CornerRadius=UDim.new(1,0)bola.Active=true bola.Draggable=true
-local m=Instance.new("Frame",sg)m.Size=UDim2.new(0,220,0,250)m.Position=UDim2.new(0.5,-110,0.5,-125)m.BackgroundColor3=Color3.fromRGB(18,18,18)m.Visible=true Instance.new("UICorner",m).CornerRadius=UDim.new(0,10)
-local function btn(t,y,c)local b=Instance.new("TextButton",m)b.Size=UDim2.new(0.9,0,0,26)b.Position=UDim2.new(0.05,0,0,y)b.Text=t b.BackgroundColor3=c b.TextColor3=Color3.new(1,1,1)b.Font=Enum.Font.GothamBold b.TextSize=10 Instance.new("UICorner",b).CornerRadius=UDim.new(0,6)return b end
-local b1=btn("Speed 2000",8,Color3.fromRGB(255,0,0))local b2=btn("Guardar Base",36,Color3.fromRGB(255,165,0))local b3=btn("TP BASE SIN LAG",64,Color3.fromRGB(0,200,100))local b4=btn("AUTO ROBAR OFF",92,Color3.fromRGB(150,0,150))local b5=btn("AUTO BATE OFF",120,Color3.fromRGB(255,100,0))local b6=btn("Cerrar",148,Color3.fromRGB(80,0,0))
-bola.MouseButton1Click:Connect(function()m.Visible=not m.Visible end)
-local function setS(s)p.Character:FindFirstChildOfClass("Humanoid").WalkSpeed=s end
-b1.MouseButton1Click:Connect(function()setS(2000)end)
-local base=nil b2.MouseButton1Click:Connect(function()base=p.Character.HumanoidRootPart.CFrame b2.Text="Guardada!"wait(1)b2.Text="Guardar Base"end)
-local function tp(c)local h=p.Character.HumanoidRootPart h.Velocity=Vector3.new(0,0,0)h.CFrame=c+Vector3.new(0,5,0)end
-b3.MouseButton1Click:Connect(function()if base then tp(base)end end)b6.MouseButton1Click:Connect(function()sg:Destroy()end)
-local a=false b4.MouseButton1Click:Connect(function()a=not a b4.Text="AUTO ROBAR "..(a and"ON"or"OFF")end)
-local b=false b5.MouseButton1Click:Connect(function()b=not b b5.Text="AUTO BATE "..(b and"ON"or"OFF")end)
-spawn(function()while wait(0.2)do if a and base then p
+local b=Instance.new("TextButton",sg)b.Size=UDim2.new(0,60,0,60)b.Position=UDim2.new(0.05,0,0.5,0)b.Text="A"b.BackgroundColor3=Color3.fromRGB(255,0,0)b.TextSize=28 b.Active=true b.Draggable=true Instance.new("UICorner",b).CornerRadius=UDim.new(1,0)
+local m=Instance.new("Frame",sg)m.Size=UDim2.new(0,200,0,200)m.Position=UDim2.new(0.5,-100,0.5,-100)m.BackgroundColor3=Color3.fromRGB(18,18,18)Instance.new("UICorner",m).CornerRadius=UDim.new(0,10)
+local base=nil
+local function mk(t,y,c,f)local x=Instance.new("TextButton",m)x.Size=UDim2.new(0.9,0,0,28)x.Position=UDim2.new(0.05,0,0,y)x.Text=t x.BackgroundColor3=c Instance.new("UICorner",x).CornerRadius=UDim.new(0,6)x.MouseButton1Click:Connect(f)return x end
+mk("SPEED 2000",5,Color3.fromRGB(255,0,0),function()p.Character.Humanoid.WalkSpeed=2000 end)
+mk("GUARDAR BASE",37,Color3.fromRGB(255,165,0),function()base=p.Character.HumanoidRootPart.CFrame end)
+mk("TP BASE",69,Color3.fromRGB(0,200,100),function()if base then p.Character.HumanoidRootPart.CFrame=base+Vector3.new(0,5,0)end end)
+local a=false mk("AUTO ROBAR OFF",101,Color3.fromRGB(150,0,150),function()a=not a end)
+local k=false mk("AUTO BATE OFF",133,Color3.fromRGB(255,100,0),function()k=not k end)
+mk("CERRAR",165,Color3.fromRGB(80,0,0),function()sg:Destroy()end)
+b.MouseButton1Click:Connect(function()m.Visible=not m.Visible end)
+task.spawn(function()while task.wait(0.2)do if a and base then for _,v in pairs(workspace:GetDescendants())do if v:IsA("ProximityPrompt")and(p.Character.HumanoidRootPart.Position-v.Parent.Position).Magnitude<15 then fireproximityprompt(v)task.wait(0.2)p.Character.Humanoid.WalkSpeed=2000 p.Character.HumanoidRootPart.CFrame=base+Vector3.new(0,5,0)end end end end end)
+task.spawn(function()while task.wait(0.1)do if k then for _,pl in pairs(game.Players:GetPlayers())do if pl~=p and pl.Character and(p.Character.HumanoidRootPart.Position-pl.Character.HumanoidRootPart.Position).Magnitude<15 then for _,t in pairs(p.Character:GetChildren())do if t:IsA("Tool")then t:Activate()end end end end end end end)
