@@ -1,15 +1,22 @@
 -- Alejandro.v6 (Script Hub)
-local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
 
 local LocalPlayer = Players.LocalPlayer
 
+-- Obtener el contenedor seguro de UI para cualquier ejecutor
+local ParentGui = (gethui and gethui()) or LocalPlayer:FindFirstChildOfClass("PlayerGui") or game:GetService("CoreGui")
+
+-- Destruir interfaz anterior si existía para evitar duplicados
+if ParentGui:FindFirstChild("AlejandroV6Gui") then
+    ParentGui.AlejandroV6Gui:Destroy()
+end
+
 -- Pantalla Principal
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "AlejandroV6Gui"
-ScreenGui.Parent = CoreGui
+ScreenGui.Parent = ParentGui
 ScreenGui.ResetOnSpawn = false
 
 -- Bolita Flotante para Abrir/Cerrar
@@ -22,7 +29,7 @@ ToggleBubble.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 ToggleBubble.Position = UDim2.new(0.02, 0, 0.4, 0)
 ToggleBubble.Size = UDim2.new(0, 50, 0, 50)
 ToggleBubble.Text = "A.v6"
-ToggleBubble.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleBubble.TextColor3 = Color3.fromRGB(0, 255, 150)
 ToggleBubble.TextSize = 16
 ToggleBubble.Font = Enum.Font.SourceSansBold
 ToggleBubble.Active = true
@@ -39,8 +46,8 @@ local Title = Instance.new("TextLabel")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-MainFrame.Position = UDim2.new(0.3, 0, 0.25, 0)
-MainFrame.Size = UDim2.new(0, 250, 0, 320)
+MainFrame.Position = UDim2.new(0.35, 0, 0.25, 0)
+MainFrame.Size = UDim2.new(0, 240, 0, 310)
 MainFrame.Visible = true
 MainFrame.Active = true
 MainFrame.Draggable = true
@@ -49,17 +56,22 @@ MainCorner.CornerRadius = UDim.new(0, 10)
 MainCorner.Parent = MainFrame
 
 Title.Parent = MainFrame
-Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Size = UDim2.new(1, 0, 0, 35)
 Title.Text = "Alejandro.v6"
 Title.TextColor3 = Color3.fromRGB(0, 255, 150)
-Title.TextSize = 20
+Title.TextSize = 18
 Title.Font = Enum.Font.SourceSansBold
 Title.BackgroundTransparency = 1
 
 local UIListLayout = Instance.new("UIListLayout")
 UIListLayout.Parent = MainFrame
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout.Padding = UDim.new(0, 8)
+UIListLayout.Padding = UDim.new(0, 6)
+UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+local UIPadding = Instance.new("UIPadding")
+UIPadding.Parent = MainFrame
+UIPadding.PaddingTop = UDim.new(0, 5)
 
 Title.LayoutOrder = 0
 
@@ -68,13 +80,12 @@ local function CreateButton(text, callback)
     local Corner = Instance.new("UICorner")
     
     Btn.Parent = MainFrame
-    Btn.Size = UDim2.new(0.9, 0, 0, 35)
-    Btn.Position = UDim2.new(0.05, 0, 0, 0)
+    Btn.Size = UDim2.new(0.9, 0, 0, 32)
     Btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     Btn.Text = text
     Btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     Btn.Font = Enum.Font.SourceSans
-    Btn.TextSize = 15
+    Btn.TextSize = 14
     
     Corner.CornerRadius = UDim.new(0, 6)
     Corner.Parent = Btn
