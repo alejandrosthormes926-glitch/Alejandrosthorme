@@ -67,30 +67,25 @@ local tpBaseBtn = crearBoton("TP A BASE",6, Color3.fromRGB(0,200,100))
 
 imageButton.MouseButton1Click:Connect(function() menu.Visible = not menu.Visible end)
 
--- INVIS
 local inv = false
 invBtn.MouseButton1Click:Connect(function() inv = not inv invBtn.Text = "Invisibilidad: "..(inv and "ON" or "OFF") pcall(function() for _, v in pairs(player.Character:GetDescendants()) do if v:IsA("BasePart") or v:IsA("Decal") then if v.Name~="HumanoidRootPart" then v.Transparency = inv and 1 or 0 end end end end) end)
 
--- SALTO FIX
 local hj = false
 local function aplicarSalto()
     local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
     if hum then hum.UseJumpPower = true hum.JumpPower = hj and 85 or 50 end
 end
 jumpBtn.MouseButton1Click:Connect(function() hj = not hj jumpBtn.Text = "Super Salto: "..(hj and "ON" or "OFF") aplicarSalto() end)
-player.CharacterAdded:Connect(function() wait(1) if hj then aplicarSalto() end end)
 
--- SPEED 80 / 120
 local fast = 0
 speedBtn.MouseButton1Click:Connect(function() 
     fast = fast + 1
-    local hum = player.Character:FindFirstChildOfClass("Humanoid")
+    local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
     if fast == 1 then hum.WalkSpeed = 80 speedBtn.Text = "Speed: 80 ON"
     elseif fast == 2 then hum.WalkSpeed = 120 speedBtn.Text = "Speed: 120 TURBO"
     else fast = 0 hum.WalkSpeed = 16 speedBtn.Text = "Speed: OFF" end
 end)
 
--- FLY
 local flying = false
 local flyConn
 local bv, bg
@@ -102,33 +97,4 @@ flyBtn.MouseButton1Click:Connect(function()
     local hum = char:FindFirstChildOfClass("Humanoid")
     if flying then
         bv = Instance.new("BodyVelocity") bv.Velocity = Vector3.new(0,0,0) bv.MaxForce = Vector3.new(9e9,9e9,9e9) bv.Parent = hrp
-        bg = Instance.new("BodyGyro") bg.MaxTorque = Vector3.new(9e9,9e9,9e9) bg.P = 9e4 bg.CFrame = hrp.CFrame bg.Parent = hrp
-        hum.PlatformStand = true
-        flyConn = RunService.RenderStepped:Connect(function()
-            if not flying then return end
-            local cam = workspace.CurrentCamera
-            bg.CFrame = cam.CFrame
-            local move = Vector3.new(0,0,0)
-            if hum.MoveDirection.Magnitude > 0 then move = cam.CFrame:VectorToWorldSpace(hum.MoveDirection * 50) end
-            if hum.Jump then move = move + Vector3.new(0,50,0) end
-            bv.Velocity = move
-        end)
-    else
-        if flyConn then flyConn:Disconnect() end if bv then bv:Destroy() end if bg then bg:Destroy() end hum.PlatformStand = false
-    end
-end)
-
--- NOCLIP
-local noclip = false
-noclipBtn.MouseButton1Click:Connect(function() noclip = not noclip noclipBtn.Text = "Noclip: "..(noclip and "ON" or "OFF") end)
-RunService.Stepped:Connect(function() if noclip then for _, v in pairs(player.Character:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end end end)
-
--- TP BASE PARA ROBAR HUEVO - FUNCIONAL 100%
-local basePos = nil
-saveBaseBtn.MouseButton1Click:Connect(function()
-    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-    if hrp then
-        basePos = hrp.CFrame
-        saveBaseBtn.Text = "Base Guardada!"
-        wait(1)
-        saveBase
+        bg = Instance.new("BodyGyro") bg.MaxTorque = Vector3.new(9e9,9e9,9e
