@@ -1,14 +1,23 @@
--- Alejandro.v6 (Script Hub)
+
+loadstring([=[
+-- Alejandro.v6 (Script Hub - Todo Activado por Defecto)
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
+local RunService = game:GetService("RunService")
 
 local LocalPlayer = Players.LocalPlayer
-local ParentGui = (gethui and gethui()) or LocalPlayer:FindFirstChildOfClass("PlayerGui") or game:GetService("CoreGui")
 
-if ParentGui:FindFirstChild("AlejandroV6Gui") then
-    ParentGui.AlejandroV6Gui:Destroy()
+-- Borra cualquier interfaz anterior que haya quedado en pantalla
+for _, name in pairs({"AlejandroV6Gui", "AlejandroV6", "AlejandroGui"}) do
+    for _, gui in pairs({LocalPlayer:FindFirstChildOfClass("PlayerGui"), game:GetService("CoreGui")}) do
+        if gui and gui:FindFirstChild(name) then
+            gui[name]:Destroy()
+        end
+    end
 end
+
+local ParentGui = (gethui and gethui()) or LocalPlayer:FindFirstChildOfClass("PlayerGui") or game:GetService("CoreGui")
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "AlejandroV6Gui"
@@ -40,8 +49,8 @@ local Title = Instance.new("TextLabel")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-MainFrame.Position = UDim2.new(0.35, 0, 0.25, 0)
-MainFrame.Size = UDim2.new(0, 240, 0, 310)
+MainFrame.Position = UDim2.new(0.35, 0, 0.15, 0)
+MainFrame.Size = UDim2.new(0, 250, 0, 450)
 MainFrame.Visible = true
 MainFrame.Active = true
 MainFrame.Draggable = true
@@ -51,7 +60,7 @@ MainCorner.Parent = MainFrame
 
 Title.Parent = MainFrame
 Title.Size = UDim2.new(1, 0, 0, 35)
-Title.Text = "Alejandro.v6"
+Title.Text = "Alejandro.v6 FULL"
 Title.TextColor3 = Color3.fromRGB(0, 255, 150)
 Title.TextSize = 18
 Title.Font = Enum.Font.SourceSansBold
@@ -60,7 +69,7 @@ Title.BackgroundTransparency = 1
 local UIListLayout = Instance.new("UIListLayout")
 UIListLayout.Parent = MainFrame
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout.Padding = UDim.new(0, 6)
+UIListLayout.Padding = UDim.new(0, 5)
 UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
 local UIPadding = Instance.new("UIPadding")
@@ -88,69 +97,7 @@ local function CreateButton(text, callback)
     return Btn
 end
 
-ToggleBubble.MouseButton1Click:Connect(function()
-    MainFrame.Visible = not MainFrame.Visible
-end)
-
-CreateButton("Velocidad 2000", function()
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        LocalPlayer.Character.Humanoid.WalkSpeed = 2000
-    end
-end)
-
-CreateButton("Velocidad 3000", function()
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        LocalPlayer.Character.Humanoid.WalkSpeed = 3000
-    end
-end)
-
-local InfJump = false
-local JumpBtn = CreateButton("Infinite Jump: OFF", function()
-    InfJump = not InfJump
-    JumpBtn.Text = "Infinite Jump: " .. (InfJump and "ON" or "OFF")
-end)
-
-UserInputService.JumpRequest:Connect(function()
-    if InfJump and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
-        LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
-    end
-end)
-
-CreateButton("Inmune a Todo", function()
-    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        LocalPlayer.Character.Humanoid.MaxHealth = math.huge
-        LocalPlayer.Character.Humanoid.Health = math.huge
-    end
-end)
-
-CreateButton("Anti Lag (FPS Boost)", function()
-    Lighting.GlobalShadows = false
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("BasePart") then
-            v.Material = Enum.Material.Plastic
-            v.Reflectance = 0
-        elseif v:IsA("Decal") or v:IsA("Texture") then
-            v:Destroy()
-        end
-    end
-end)
-
-local AutoFarm = false
-local FarmBtn = CreateButton("Auto-Recolectar: OFF", function()
-    AutoFarm = not AutoFarm
-    FarmBtn.Text = "Auto-Recolectar: " .. (AutoFarm and "ON" or "OFF")
-    
-    task.spawn(function()
-        while AutoFarm do
-            task.wait(0.3)
-            local char = LocalPlayer.Character
-            if char and char:FindFirstChild("HumanoidRootPart") then
-                for _, obj in pairs(workspace:GetDescendants()) do
-                    if obj:IsA("BasePart") and (obj.Name:lower():find("coin") or obj.Name:lower():find("money") or obj.Name:lower():find("cash")) then
-                        obj.CFrame = char.HumanoidRootPart.CFrame
-                    end
-                end
-            end
-        end
-    end)
-end)
+-- Función para crear un campo de entrada de texto
+local function CreateTextBox(placeholder, defaultText, callback)
+    local Frame = Instance.new("Frame")
+ 
