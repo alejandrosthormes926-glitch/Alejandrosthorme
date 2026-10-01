@@ -4,22 +4,17 @@ local UserInputService = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
 
 local LocalPlayer = Players.LocalPlayer
-
--- Obtener el contenedor seguro de UI para cualquier ejecutor
 local ParentGui = (gethui and gethui()) or LocalPlayer:FindFirstChildOfClass("PlayerGui") or game:GetService("CoreGui")
 
--- Destruir interfaz anterior si existía para evitar duplicados
 if ParentGui:FindFirstChild("AlejandroV6Gui") then
     ParentGui.AlejandroV6Gui:Destroy()
 end
 
--- Pantalla Principal
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "AlejandroV6Gui"
 ScreenGui.Parent = ParentGui
 ScreenGui.ResetOnSpawn = false
 
--- Bolita Flotante para Abrir/Cerrar
 local ToggleBubble = Instance.new("TextButton")
 local BubbleCorner = Instance.new("UICorner")
 
@@ -38,7 +33,6 @@ ToggleBubble.Draggable = true
 BubbleCorner.CornerRadius = UDim.new(1, 0)
 BubbleCorner.Parent = ToggleBubble
 
--- Ventana del Menú
 local MainFrame = Instance.new("Frame")
 local MainCorner = Instance.new("UICorner")
 local Title = Instance.new("TextLabel")
@@ -98,7 +92,6 @@ ToggleBubble.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
 end)
 
--- BOTONES Y FUNCIONES
 CreateButton("Velocidad 2000", function()
     if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
         LocalPlayer.Character.Humanoid.WalkSpeed = 2000
