@@ -1,4 +1,4 @@
-local p=game.Players.LocalPlayer local g=p:FindFirstChild("PlayerGui")or game.CoreGui if gethui then pcall(function() g=gethui()end)end for _,v in pairs(g:GetChildren())do if v.Name=="A"then v:Destroy()end end
+awnlocal p=game.Players.LocalPlayer local g=p:FindFirstChild("PlayerGui")or game.CoreGui if gethui then pcall(function() g=gethui()end)end for _,v in pairs(g:GetChildren())do if v.Name=="A"then v:Destroy()end end
 local sg=Instance.new("ScreenGui",g)sg.Name="A"sg.ResetOnSpawn=false
 local bola=Instance.new("TextButton",sg)bola.Size=UDim2.new(0,60,0,60)bola.Position=UDim2.new(0.05,0,0.5,0)bola.Text="A"bola.BackgroundColor3=Color3.fromRGB(255,0,0)bola.TextColor3=Color3.new(1,1,1)bola.Font=Enum.Font.GothamBlack bola.TextSize=28 Instance.new("UICorner",bola).CornerRadius=UDim.new(1,0)bola.Active=true bola.Draggable=true
 local m=Instance.new("Frame",sg)m.Size=UDim2.new(0,220,0,250)m.Position=UDim2.new(0.5,-110,0.5,-125)m.BackgroundColor3=Color3.fromRGB(18,18,18)m.Visible=true Instance.new("UICorner",m).CornerRadius=UDim.new(0,10)
