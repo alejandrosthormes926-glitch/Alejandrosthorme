@@ -1,8 +1,7 @@
--- ALEJANDRO HUB V6 - FIX NO EJECUTA
+-- ALEJANDRO HUB V6.2 - FIX SUPER SALTO NO REGRESA
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
--- Fix para que SIEMPRE ejecute en Delta
 local playerGui = nil
 pcall(function() playerGui = player:WaitForChild("PlayerGui") end)
 if not playerGui then playerGui = game:GetService("CoreGui") end
@@ -36,7 +35,7 @@ Instance.new("UICorner", menu).CornerRadius = UDim.new(0,12)
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1,0,0,40)
-title.Text = "ALEJANDRO HUB V6"
+title.Text = "ALEJANDRO HUB V6.2"
 title.TextColor3 = Color3.fromRGB(0, 200, 255)
 title.BackgroundTransparency = 1
 title.Font = Enum.Font.GothamBlack
@@ -68,8 +67,18 @@ imageButton.MouseButton1Click:Connect(function() menu.Visible = not menu.Visible
 local inv = false
 invBtn.MouseButton1Click:Connect(function() inv = not inv invBtn.Text = "Invisibilidad: "..(inv and "ON" or "OFF") pcall(function() for _, v in pairs(player.Character:GetDescendants()) do if v:IsA("BasePart") or v:IsA("Decal") then if v.Name~="HumanoidRootPart" then v.Transparency = inv and 1 or 0 end end end end) end)
 
+-- SUPER SALTO ARREGLADO - NO REGRESA
 local hj = false
-jumpBtn.MouseButton1Click:Connect(function() hj = not hj jumpBtn.Text = "Super Salto: "..(hj and "ON" or "OFF") local hum = player.Character:FindFirstChildOfClass("Humanoid") if hum then hum.UseJumpPower = false hum.JumpHeight = hj and 50 or 7.2 end end)
+jumpBtn.MouseButton1Click:Connect(function() 
+    hj = not hj 
+    jumpBtn.Text = "Super Salto: "..(hj and "ON" or "OFF") 
+    local hum = player.Character:FindFirstChildOfClass("Humanoid") 
+    if hum then 
+        hum.UseJumpPower = true
+        hum.JumpPower = hj and 120 or 50
+        hum.JumpHeight = hj and 0 or 7.2
+    end 
+end)
 
 local fast = false
 speedBtn.MouseButton1Click:Connect(function() fast = not fast speedBtn.Text = "Speed: "..(fast and "ON" or "OFF") player.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = fast and 32 or 16 end)
@@ -116,4 +125,4 @@ end)
 local noclip = false
 noclipBtn.MouseButton1Click:Connect(function() noclip = not noclip noclipBtn.Text = "Noclip: "..(noclip and "ON" or "OFF") end)
 game:GetService("RunService").Stepped:Connect(function() if noclip then for _, v in pairs(player.Character:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end end end)
-print("ALEJANDRO HUB V6 CARGADO")
+print("ALEJANDRO HUB V6.2 CARGADO - SUPER SALTO FIX")
