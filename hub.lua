@@ -286,4 +286,13 @@ task.spawn(function()
         end
     end
 end)
-]=])()
+]=])()-- Anular Touch/Contacto de bloques dañinos (Lava, KillBricks)
+for _, part in pairs(workspace:GetDescendants()) do
+    if part:IsA("BasePart") then
+        local name = part.Name:lower()
+        if name:find("kill") or name:find("lava") or name:find("hazard") or name:find("acid") then
+            part.CanTouch = false
+        end
+    end
+end
+
