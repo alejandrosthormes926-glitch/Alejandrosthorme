@@ -94,21 +94,67 @@ ToggleBubble.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
 end)
 
--- Variables de Estado (Todas inician en OFF)
-local SpeedActive = false
-local TargetSpeed = 16
+-- Variables de Estado
+local GodMode = false
+local GodConnection = nil
 
+local GodBtn = CreateButton("Inmune (Tecla [E]): OFF", function() end)
+
+local function UpdateGodState()
+    GodBtn.Text = "Inmune (Tecla [E]): " .. (GodMode and "ON" or "OFF")
+end
+
+local function ApplyGodMode(character)
+    if not character then return end
+    local humanoid = character:WaitForChild("Humanoid", 3)
+    if not humanoid then return end
+
+    if GodConnection then GodConnection:Disconnect() end
+
+    if GodMode then
+        humanoid.MaxHealth = math.huge
+        humanoid.Health = math.huge
+        
+        -- Si detecta pérdida de vida, la vuelve a subir inmediatamente
+        GodConnection = humanoid.HealthChanged:Connect(function()
+            if GodMode and humanoid.Health < math.huge then
+                humanoid.MaxHealth = math.huge
+                humanoid.Health = math.huge
+            end
+        end)
+    end
+end
+
+local function ToggleGodMode()
+    GodMode = not GodMode
+    UpdateGodState()
+    if LocalPlayer.Character then
+        ApplyGodMode(LocalPlayer.Character)
+    end
+end
+
+GodBtn.MouseButton1Click:Connect(ToggleGodMode)
+
+-- Control por Teclado (Tecla E)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.E then
+        ToggleGodMode()
+    end
+end)
+
+-- Mantener activo al reaparecer (Respawn)
+LocalPlayer.CharacterAdded:Connect(function(newCharacter)
+    task.wait(0.5)
+    if GodMode then
+        ApplyGodMode(newCharacter)
+    end
+end)
+
+-- Resto de Funciones (Velocidad, Salto, Noclip, Fly, ESP, AntiLag)
+local SpeedActive = false
 local SpeedBtn = CreateButton("Velocidad Ultra: OFF", function()
     SpeedActive = not SpeedActive
     SpeedBtn.Text = "Velocidad Ultra: " .. (SpeedActive and "ON" or "OFF")
-    
-    local char = LocalPlayer.Character
-    if char then
-        local hum = char:FindFirstChildOfClass("Humanoid")
-        if hum then
-            hum.WalkSpeed = SpeedActive and 2000 or 16
-        end
-    end
 end)
 
 local InfJump = false
@@ -121,12 +167,6 @@ UserInputService.JumpRequest:Connect(function()
     if InfJump and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
         LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
     end
-end)
-
-local GodMode = false
-local GodBtn = CreateButton("Inmune: OFF", function()
-    GodMode = not GodMode
-    GodBtn.Text = "Inmune: " .. (GodMode and "ON" or "OFF")
 end)
 
 local Noclip = false
@@ -220,32 +260,22 @@ CreateButton("Anti Lag (FPS Boost)", function()
     end
 end)
 
--- Bucle principal (Mantiene activos los trucos solo en ON)
+-- Bucle de fondo para las funciones restantes
 task.spawn(function()
-    while task.wait(0.2) do
+    while task.wait(0.1) do
         local char = LocalPlayer.Character
         if char then
             local hum = char:FindFirstChildOfClass("Humanoid")
             local hrp = char:FindFirstChild("HumanoidRootPart")
             
-            -- Velocidad en ON
             if hum then
                 if SpeedActive then
                     hum.WalkSpeed = 2000
-                else
-                    if hum.WalkSpeed > 16 and not SpeedActive then
-                        hum.WalkSpeed = 16
-                    end
+                elseif hum.WalkSpeed > 16 and not SpeedActive then
+                    hum.WalkSpeed = 16
                 end
             end
             
-            -- Inmunidad solo en ON
-            if hum and GodMode then
-                hum.MaxHealth = math.huge
-                hum.Health = math.huge
-            end
-            
-            -- Auto Farm solo en ON
             if hrp and AutoFarm then
                 for _, obj in pairs(workspace:GetDescendants()) do
                     if obj:IsA("BasePart") and (obj.Name:lower():find("coin") or obj.Name:lower():find("money") or obj.Name:lower():find("cash")) then
