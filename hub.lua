@@ -1,23 +1,16 @@
-
 loadstring([=[
--- Alejandro.v6 (Script Hub - Todo Activado por Defecto)
+-- Alejandro.v6 (Script Hub Mejorado)
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
 
 local LocalPlayer = Players.LocalPlayer
-
--- Borra cualquier interfaz anterior que haya quedado en pantalla
-for _, name in pairs({"AlejandroV6Gui", "AlejandroV6", "AlejandroGui"}) do
-    for _, gui in pairs({LocalPlayer:FindFirstChildOfClass("PlayerGui"), game:GetService("CoreGui")}) do
-        if gui and gui:FindFirstChild(name) then
-            gui[name]:Destroy()
-        end
-    end
-end
-
 local ParentGui = (gethui and gethui()) or LocalPlayer:FindFirstChildOfClass("PlayerGui") or game:GetService("CoreGui")
+
+if ParentGui:FindFirstChild("AlejandroV6Gui") then
+    ParentGui.AlejandroV6Gui:Destroy()
+end
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "AlejandroV6Gui"
@@ -49,8 +42,8 @@ local Title = Instance.new("TextLabel")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
 MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-MainFrame.Position = UDim2.new(0.35, 0, 0.15, 0)
-MainFrame.Size = UDim2.new(0, 250, 0, 450)
+MainFrame.Position = UDim2.new(0.35, 0, 0.2, 0)
+MainFrame.Size = UDim2.new(0, 240, 0, 420)
 MainFrame.Visible = true
 MainFrame.Active = true
 MainFrame.Draggable = true
@@ -60,7 +53,7 @@ MainCorner.Parent = MainFrame
 
 Title.Parent = MainFrame
 Title.Size = UDim2.new(1, 0, 0, 35)
-Title.Text = "Alejandro.v6 FULL"
+Title.Text = "Alejandro.v6"
 Title.TextColor3 = Color3.fromRGB(0, 255, 150)
 Title.TextSize = 18
 Title.Font = Enum.Font.SourceSansBold
@@ -69,7 +62,7 @@ Title.BackgroundTransparency = 1
 local UIListLayout = Instance.new("UIListLayout")
 UIListLayout.Parent = MainFrame
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout.Padding = UDim.new(0, 5)
+UIListLayout.Padding = UDim.new(0, 6)
 UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
 local UIPadding = Instance.new("UIPadding")
@@ -97,7 +90,170 @@ local function CreateButton(text, callback)
     return Btn
 end
 
--- Función para crear un campo de entrada de texto
-local function CreateTextBox(placeholder, defaultText, callback)
-    local Frame = Instance.new("Frame")
- 
+ToggleBubble.MouseButton1Click:Connect(function()
+    MainFrame.Visible = not MainFrame.Visible
+end)
+
+-- Variables de Estado (Todas inician en OFF)
+local SpeedActive = false
+local TargetSpeed = 16
+
+local SpeedBtn = CreateButton("Velocidad Ultra: OFF", function()
+    SpeedActive = not SpeedActive
+    SpeedBtn.Text = "Velocidad Ultra: " .. (SpeedActive and "ON" or "OFF")
+    
+    local char = LocalPlayer.Character
+    if char then
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum.WalkSpeed = SpeedActive and 2000 or 16
+        end
+    end
+end)
+
+local InfJump = false
+local JumpBtn = CreateButton("Infinite Jump: OFF", function()
+    InfJump = not InfJump
+    JumpBtn.Text = "Infinite Jump: " .. (InfJump and "ON" or "OFF")
+end)
+
+UserInputService.JumpRequest:Connect(function()
+    if InfJump and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+        LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+    end
+end)
+
+local GodMode = false
+local GodBtn = CreateButton("Inmune: OFF", function()
+    GodMode = not GodMode
+    GodBtn.Text = "Inmune: " .. (GodMode and "ON" or "OFF")
+end)
+
+local Noclip = false
+local NoclipBtn = CreateButton("Atravesar Paredes: OFF", function()
+    Noclip = not Noclip
+    NoclipBtn.Text = "Atravesar Paredes: " .. (Noclip and "ON" or "OFF")
+end)
+
+RunService.Stepped:Connect(function()
+    if Noclip and LocalPlayer.Character then
+        for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = false
+            end
+        end
+    end
+end)
+
+local Flying = false
+local FlyBtn = CreateButton("Volar (Fly): OFF", function()
+    Flying = not Flying
+    FlyBtn.Text = "Volar (Fly): " .. (Flying and "ON" or "OFF")
+    
+    local char = LocalPlayer.Character
+    if char then
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            if Flying then
+                local bv = Instance.new("BodyVelocity")
+                bv.Name = "FlyVelocity"
+                bv.Parent = hrp
+                bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+            else
+                if hrp:FindFirstChild("FlyVelocity") then
+                    hrp.FlyVelocity:Destroy()
+                end
+            end
+        end
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    if Flying and LocalPlayer.Character then
+        local hrp = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        local camera = workspace.CurrentCamera
+        if hrp and hrp:FindFirstChild("FlyVelocity") then
+            hrp.FlyVelocity.Velocity = camera.CFrame.LookVector * 100
+        end
+    end
+end)
+
+local ESPActive = false
+local ESPBtn = CreateButton("Ver Jugadores (ESP): OFF", function()
+    ESPActive = not ESPActive
+    ESPBtn.Text = "Ver Jugadores (ESP): " .. (ESPActive and "ON" or "OFF")
+    
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and plr.Character then
+            if ESPActive then
+                if not plr.Character:FindFirstChild("ESP_Box") then
+                    local highlight = Instance.new("Highlight")
+                    highlight.Name = "ESP_Box"
+                    highlight.Parent = plr.Character
+                    highlight.FillColor = Color3.fromRGB(0, 255, 150)
+                    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                end
+            else
+                if plr.Character:FindFirstChild("ESP_Box") then
+                    plr.Character.ESP_Box:Destroy()
+                end
+            end
+        end
+    end
+end)
+
+local AutoFarm = false
+local FarmBtn = CreateButton("Auto-Recolectar: OFF", function()
+    AutoFarm = not AutoFarm
+    FarmBtn.Text = "Auto-Recolectar: " .. (AutoFarm and "ON" or "OFF")
+end)
+
+CreateButton("Anti Lag (FPS Boost)", function()
+    Lighting.GlobalShadows = false
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") then
+            v.Material = Enum.Material.Plastic
+            v.Reflectance = 0
+        elseif v:IsA("Decal") or v:IsA("Texture") then
+            v:Destroy()
+        end
+    end
+end)
+
+-- Bucle principal (Mantiene activos los trucos solo en ON)
+task.spawn(function()
+    while task.wait(0.2) do
+        local char = LocalPlayer.Character
+        if char then
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            
+            -- Velocidad en ON
+            if hum then
+                if SpeedActive then
+                    hum.WalkSpeed = 2000
+                else
+                    if hum.WalkSpeed > 16 and not SpeedActive then
+                        hum.WalkSpeed = 16
+                    end
+                end
+            end
+            
+            -- Inmunidad solo en ON
+            if hum and GodMode then
+                hum.MaxHealth = math.huge
+                hum.Health = math.huge
+            end
+            
+            -- Auto Farm solo en ON
+            if hrp and AutoFarm then
+                for _, obj in pairs(workspace:GetDescendants()) do
+                    if obj:IsA("BasePart") and (obj.Name:lower():find("coin") or obj.Name:lower():find("money") or obj.Name:lower():find("cash")) then
+                        obj.CFrame = hrp.CFrame
+                    end
+                end
+            end
+        end
+    end
+end)
+]=])()
