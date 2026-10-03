@@ -1,5 +1,5 @@
 loadstring([=[
--- Alejandro.v6 (Script Hub - Inmunidad Total Anti-Proyectiles y Objetos)
+-- Alejandro.v6 (Script Hub - Inmunidad Avanzada Anti-Jefes y Proyectiles)
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
@@ -100,7 +100,7 @@ ToggleBubble.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
 end)
 
--- INMUNIDAD TOTAL (AUTO ON)
+-- INMUNIDAD TOTAL Y ANTI-JEFES (AUTO ON)
 local GodMode = true
 
 local GodBtn = CreateButton("Inmune Total (Tecla [E]): ON", function() end)
@@ -128,7 +128,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
--- Otras Funciones
+-- Funciones Secundarias
 local SpeedActive = false
 local SpeedBtn = CreateButton("Velocidad Ultra: OFF", function()
     SpeedActive = not SpeedActive
@@ -238,16 +238,20 @@ CreateButton("Anti Lag (FPS Boost)", function()
     end
 end)
 
--- BUCLE DE INMUNIDAD DE IMPACTO Y OBJETOS (CADA FRAME)
-RunService.Stepped:Connect(function()
+-- SISTEMA DE PROTECCIÓN CONTINUA CONTRA DAÑO Y JEFES
+RunService.RenderStepped:Connect(function()
     if GodMode and LocalPlayer.Character then
         local char = LocalPlayer.Character
         local hum = char:FindFirstChildOfClass("Humanoid")
         
-        -- Mantener Vida Infinita y Escudo
         if hum then
-            hum.MaxHealth = math.huge
-            hum.Health = math.huge
+            -- Mantenimiento de vida e inmunidad a muerte
+            hum.BreakJointsOnDeath = false
+            hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
+            
+            if hum.Health < hum.MaxHealth or hum.Health <= 0 then
+                hum.Health = hum.MaxHealth or 100
+            end
             
             if not char:FindFirstChildOfClass("ForceField") then
                 local ff = Instance.new("ForceField")
@@ -255,7 +259,7 @@ RunService.Stepped:Connect(function()
             end
         end
 
-        -- Desactivar detección de toque en el personaje (Evita que bolas u objetos reconozcan el choque)
+        -- Desactivar puntos de contacto en el cuerpo
         for _, part in pairs(char:GetChildren()) do
             if part:IsA("BasePart") then
                 part.CanTouch = false
@@ -264,9 +268,9 @@ RunService.Stepped:Connect(function()
     end
 end)
 
--- BUCLE SECUNDARIO (ANULAR CONTACTO EN TODOS LOS OBJETOS Y PROYECTILES DEL MAPA)
+-- BUCLE PARA BLOQUEAR OBJETOS Y PERSECUSIÓN DE JEFES EN EL MAPA
 task.spawn(function()
-    while task.wait(0.1) do
+    while task.wait(0.05) do
         local char = LocalPlayer.Character
         if char then
             local hum = char:FindFirstChildOfClass("Humanoid")
@@ -285,9 +289,10 @@ task.spawn(function()
             end
         end
 
+        -- Anular la detección de impacto en todos los objetos y NPCs hostiles
         if GodMode then
             for _, obj in pairs(workspace:GetDescendants()) do
-                if obj:IsA("BasePart") and obj.CanTouch and not obj:IsDescendantOf(LocalPlayer.Character) then
+                if obj:IsA("BasePart") and not obj:IsDescendantOf(LocalPlayer.Character) then
                     obj.CanTouch = false
                 end
             end
