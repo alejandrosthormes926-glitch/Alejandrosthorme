@@ -1,12 +1,18 @@
 loadstring([=[
--- Alejandro.v6 (Script Hub Mejorado)
+-- Alejandro.v6 (Script Hub - Inmunidad Total Anti-Proyectiles y Objetos)
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
 
 local LocalPlayer = Players.LocalPlayer
-local ParentGui = (gethui and gethui()) or LocalPlayer:FindFirstChildOfClass("PlayerGui") or game:GetService("CoreGui")
+
+local ParentGui
+if gethui then
+    ParentGui = gethui()
+else
+    ParentGui = LocalPlayer:FindFirstChildOfClass("PlayerGui") or game:GetService("CoreGui")
+end
 
 if ParentGui:FindFirstChild("AlejandroV6Gui") then
     ParentGui.AlejandroV6Gui:Destroy()
@@ -94,42 +100,22 @@ ToggleBubble.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
 end)
 
--- Variables de Estado
-local GodMode = false
-local GodConnection = nil
+-- INMUNIDAD TOTAL (AUTO ON)
+local GodMode = true
 
-local GodBtn = CreateButton("Inmune (Tecla [E]): OFF", function() end)
+local GodBtn = CreateButton("Inmune Total (Tecla [E]): ON", function() end)
 
-local function UpdateGodState()
-    GodBtn.Text = "Inmune (Tecla [E]): " .. (GodMode and "ON" or "OFF")
-end
-
-local function ApplyGodMode(character)
-    if not character then return end
-    local humanoid = character:WaitForChild("Humanoid", 3)
-    if not humanoid then return end
-
-    if GodConnection then GodConnection:Disconnect() end
-
-    if GodMode then
-        humanoid.MaxHealth = math.huge
-        humanoid.Health = math.huge
-        
-        -- Si detecta pérdida de vida, la vuelve a subir inmediatamente
-        GodConnection = humanoid.HealthChanged:Connect(function()
-            if GodMode and humanoid.Health < math.huge then
-                humanoid.MaxHealth = math.huge
-                humanoid.Health = math.huge
-            end
-        end)
-    end
+local function UpdateGodButton()
+    GodBtn.Text = "Inmune Total (Tecla [E]): " .. (GodMode and "ON" or "OFF")
 end
 
 local function ToggleGodMode()
     GodMode = not GodMode
-    UpdateGodState()
-    if LocalPlayer.Character then
-        ApplyGodMode(LocalPlayer.Character)
+    UpdateGodButton()
+    
+    if not GodMode and LocalPlayer.Character then
+        local ff = LocalPlayer.Character:FindFirstChildOfClass("ForceField")
+        if ff then ff:Destroy() end
     end
 end
 
@@ -142,15 +128,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
--- Mantener activo al reaparecer (Respawn)
-LocalPlayer.CharacterAdded:Connect(function(newCharacter)
-    task.wait(0.5)
-    if GodMode then
-        ApplyGodMode(newCharacter)
-    end
-end)
-
--- Resto de Funciones (Velocidad, Salto, Noclip, Fly, ESP, AntiLag)
+-- Otras Funciones
 local SpeedActive = false
 local SpeedBtn = CreateButton("Velocidad Ultra: OFF", function()
     SpeedActive = not SpeedActive
@@ -260,7 +238,33 @@ CreateButton("Anti Lag (FPS Boost)", function()
     end
 end)
 
--- Bucle de fondo para las funciones restantes
+-- BUCLE DE INMUNIDAD DE IMPACTO Y OBJETOS (CADA FRAME)
+RunService.Stepped:Connect(function()
+    if GodMode and LocalPlayer.Character then
+        local char = LocalPlayer.Character
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        
+        -- Mantener Vida Infinita y Escudo
+        if hum then
+            hum.MaxHealth = math.huge
+            hum.Health = math.huge
+            
+            if not char:FindFirstChildOfClass("ForceField") then
+                local ff = Instance.new("ForceField")
+                ff.Parent = char
+            end
+        end
+
+        -- Desactivar detección de toque en el personaje (Evita que bolas u objetos reconozcan el choque)
+        for _, part in pairs(char:GetChildren()) do
+            if part:IsA("BasePart") then
+                part.CanTouch = false
+            end
+        end
+    end
+end)
+
+-- BUCLE SECUNDARIO (ANULAR CONTACTO EN TODOS LOS OBJETOS Y PROYECTILES DEL MAPA)
 task.spawn(function()
     while task.wait(0.1) do
         local char = LocalPlayer.Character
@@ -268,12 +272,8 @@ task.spawn(function()
             local hum = char:FindFirstChildOfClass("Humanoid")
             local hrp = char:FindFirstChild("HumanoidRootPart")
             
-            if hum then
-                if SpeedActive then
-                    hum.WalkSpeed = 2000
-                elseif hum.WalkSpeed > 16 and not SpeedActive then
-                    hum.WalkSpeed = 16
-                end
+            if hum and SpeedActive then
+                hum.WalkSpeed = 2000
             end
             
             if hrp and AutoFarm then
@@ -284,15 +284,14 @@ task.spawn(function()
                 end
             end
         end
-    end
-end)
-]=])()-- Anular Touch/Contacto de bloques dañinos (Lava, KillBricks)
-for _, part in pairs(workspace:GetDescendants()) do
-    if part:IsA("BasePart") then
-        local name = part.Name:lower()
-        if name:find("kill") or name:find("lava") or name:find("hazard") or name:find("acid") then
-            part.CanTouch = false
+
+        if GodMode then
+            for _, obj in pairs(workspace:GetDescendants()) do
+                if obj:IsA("BasePart") and obj.CanTouch and not obj:IsDescendantOf(LocalPlayer.Character) then
+                    obj.CanTouch = false
+                end
+            end
         end
     end
-end
-
+end)
+]=])()
